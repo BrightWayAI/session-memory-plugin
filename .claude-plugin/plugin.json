@@ -1,7 +1,7 @@
 {
   "name": "session-memory",
-  "description": "Builds persistent intelligence — both project state and knowledge — across your working world. Nine commands: /remember (commit sessions), /recall (surface context and knowledge), /search (find anything), /learn (capture a gotcha, model, or lesson), /note (quick one-liner), /review (weekly synthesis), /forget (archive projects), /timeline (chronological views), /cleanup (memory maintenance). Designed for anyone who wants Claude to accumulate understanding across conversations — not just track tasks, but actually learn.",
-  "version": "2.1.0",
+  "description": "Builds persistent intelligence — both project state and knowledge — across your working world. Nine commands for committing sessions, recalling context, searching knowledge, capturing lessons and gotchas, taking quick notes, running weekly reviews, viewing timelines, archiving projects, and maintaining memory health. Works for any kind of work: client engagements, business development, strategy, operations, hiring, research, learning, and technical projects.",
+  "version": "2.2.0",
   "author": {
     "name": "BrightWay AI",
     "url": "https://brightwayai.com"

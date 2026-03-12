@@ -1,8 +1,10 @@
-# Session Memory Plugin v2.1
+# Session Memory Plugin v2.2
 
 **Build persistent intelligence — project state AND knowledge — across your working world.**
 
 Most AI conversations are disposable. This plugin makes them cumulative. Every session can produce two kinds of value: **what changed** (decisions, actions, progress) and **what was learned** (insights, gotchas, mental models, techniques). This plugin captures both and makes them retrievable.
+
+Works for any kind of work — client engagements, business development, strategy, operations, hiring, research, learning, and technical projects.
 
 ---
 
@@ -22,32 +24,52 @@ Most AI conversations are disposable. This plugin makes them cumulative. Every s
 
 ---
 
+## What gets captured
+
+Every `/remember` extracts two categories:
+
+### Project State — what changed
+- **Decisions made** — what was resolved and why
+- **Open threads** — things started but not finished
+- **Blockers** — what's preventing progress and who owns it
+- **Artifacts** — docs created, proposals sent, decks built
+- **Next actions** — prioritized (P0/P1/P2/WAITING)
+
+### Knowledge — what was learned
+- **Insights** — "Realized our churn is an onboarding problem, not a product problem"
+- **Lessons** — "Tried same-day proposals — close rate dropped. 48-hour tailored decks close 3x better"
+- **Mental Models** — "Their approval flow: dept head → finance → VP → procurement"
+- **Gotchas** — "Their fiscal year starts April, not January — adjust all budget timing"
+- **Recipes** — "For exec buy-in: lead with their metric, show the gap, propose one action"
+- **Corrections** — "They're not price-sensitive — they need ROI framing for internal approval"
+
+Knowledge entries are the highest-value content. They persist longer than session logs and surface automatically when you need them.
+
+---
+
 ## Commands
 
 ### Core — Commit & Recall
 
 #### `/remember`
-End-of-session commit. Extracts both **project state** and **knowledge**:
-- Project state: decisions, open threads, blockers, artifacts, prioritized next actions
-- Knowledge: insights, lessons learned, mental models, gotchas, patterns/recipes, corrected beliefs
-- Cross-project signals, people index, continuity tracking
-- Works for pure learning sessions with zero project state changes
+End-of-session commit. Extracts project state and knowledge, tracks people, spots cross-project signals. Works equally well for a strategy session, a client call debrief, or a pure learning session.
 
 #### `/recall [project | @person | topic]`
 Start-of-session context loading:
 - **Project**: full state + knowledge base + threads + actions
 - **Person**: cross-project profile (which projects, what they own, open items)
-- **Topic**: everything known about a subject across all projects (models, gotchas, lessons)
-- **No argument**: working world dashboard with recent learning highlighted
+- **Topic**: everything known about a subject across all projects
+- **No argument**: working world dashboard with all active projects at a glance
 
 ### Quick Capture
 
 #### `/learn [node] [type?] [content]`
-Capture a single piece of knowledge directly — no full session extraction:
+Capture a single piece of knowledge — no full session extraction needed:
 ```
-/learn infra:aws gotcha Lambda env vars aren't encrypted at rest
-/learn crm-dashboard model The sync engine retries 3x with exponential backoff then dead-letters
-/learn learning:rust lesson Fighting the borrow checker means your data model is wrong
+/learn client:acme gotcha Their procurement requires 3 vendor quotes even for renewals
+/learn bizdev:partnerships model Channel partners want co-marketing before signing
+/learn strategy:pricing lesson Usage-based pricing confused mid-market buyers — flat tiers landed better
+/learn domain:healthcare recipe For HIPAA BAAs: send our template first, let their legal redline, then negotiate
 ```
 Types: `insight`, `lesson`, `model`, `gotcha`, `recipe`, `correction`. Auto-inferred if omitted.
 
@@ -55,22 +77,23 @@ Types: `insight`, `lesson`, `model`, `gotcha`, `recipe`, `correction`. Auto-infe
 Fastest capture — one line, no ceremony:
 ```
 /note client:acme Kim confirmed March 15 deadline
-/note infra Deployed v2.3.1 to staging
+/note hiring Sent offer letter to Jordan for ops manager
+/note strategy:pricing Competitor just dropped entry tier to $29/mo
 ```
 
 ### Analysis
 
 #### `/search [query]`
 Cross-project search. Finds knowledge, decisions, people, artifacts, blockers, actions:
-- "how does the auth flow work" → finds MODEL entries
-- "any gotchas with S3 events" → finds GOTCHA entries
-- "what went wrong with the migration" → finds LESSON entries
+- "how does their approval process work" → finds MODEL entries
+- "any gotchas with Acme's procurement" → finds GOTCHA entries
+- "what worked for retention" → finds LESSON entries
 - "what's my P0 list" → unified action list across all nodes
 
 #### `/review [--since date] [--until date]`
 Synthesized weekly review (not just a timeline — an analytical digest):
 - **Progress**: what moved forward
-- **Learned**: new knowledge committed (the "intellectual growth" section)
+- **Learned**: new knowledge committed
 - **Stuck**: blockers and stale threads
 - **Decided**: key decisions for accountability
 - **Coming Up**: P0/P1 actions across all projects
@@ -85,13 +108,13 @@ Chronological activity log with velocity assessment and arc analysis.
 Archive (default), merge, or delete project nodes. Cleans up cross-references.
 
 #### `/cleanup`
-Memory health audit: stale threads, dormant nodes, orphaned entries, duplicates. Proposes numbered actions for approval.
+Memory health audit: stale threads, dormant nodes, orphaned entries, duplicates.
 
 ---
 
 ## Memory Types
 
-The plugin stores several types of entries. Knowledge entries persist longer than logs — they're the highest-value content.
+Knowledge entries persist longer than logs — they're the highest-value content.
 
 ### Project State
 | Entry | Format | Behavior |
@@ -103,11 +126,11 @@ The plugin stores several types of entries. Knowledge entries persist longer tha
 | Entry | Format | When to use |
 |-------|--------|-------------|
 | **Insight** | `[node] INSIGHT (date): ...` | New realization or connection |
-| **Lesson** | `[node] LESSON (date): tried > happened > takeaway` | Something that worked or failed |
-| **Model** | `[node] MODEL (date): ...` | How something works |
-| **Gotcha** | `[node] GOTCHA (date): ...` | Trap, footgun, or non-obvious behavior |
-| **Recipe** | `[node] RECIPE (date): name — when > how` | Reusable technique or process |
-| **Correction** | `[node] CORRECTION (date): old > new` | Updated/reversed belief |
+| **Lesson** | `[node] LESSON (date): tried → happened → takeaway` | Something that worked or failed |
+| **Model** | `[node] MODEL (date): ...` | How something works (process, workflow, system) |
+| **Gotcha** | `[node] GOTCHA (date): ...` | Trap, hidden requirement, or non-obvious behavior |
+| **Recipe** | `[node] RECIPE (date): name — when → how` | Reusable technique, playbook, or process |
+| **Correction** | `[node] CORRECTION (date): old → new` | Updated or reversed belief |
 
 ### Cross-cutting
 | Entry | Format |
@@ -120,7 +143,7 @@ The plugin stores several types of entries. Knowledge entries persist longer tha
 
 ## Priority System
 
-Next actions: `[P0]` do now, `[P1]` this week, `[P2]` eventually, `[WAITING:person]` blocked.
+Next actions: `[P0]` do now, `[P1]` this week, `[P2]` eventually, `[WAITING:person]` blocked on someone.
 
 ## Staleness Tracking
 
@@ -131,19 +154,20 @@ Nodes: Active (7 days), Warm (8-14), Cooling (15-30), Dormant (30+).
 
 ## Node Conventions
 
-Use kebab-case. Common patterns:
+Use kebab-case. Organize however fits your work:
 
 | Pattern | Example |
 |---------|---------|
-| Product | `crm-dashboard`, `mobile-app` |
-| Client | `client:acme-corp` |
-| Infra | `infra:aws`, `infra:ci-cd` |
-| Learning | `learning:rust`, `learning:ml-ops` |
-| Domain | `domain:tax-law`, `domain:networking` |
-| Research | `research:ai-agents` |
+| Client work | `client:acme-corp`, `client:northstar` |
+| Business development | `bizdev`, `bizdev:stripe-partnership` |
+| Internal ops | `company-ops`, `hiring`, `finance`, `brand` |
+| Strategy/planning | `strategy:q2-growth`, `strategy:pricing` |
+| Products/services | `onboarding-program`, `crm-dashboard` |
+| Learning | `learning:sales-ops`, `learning:ai-tools` |
+| Domain knowledge | `domain:tax-law`, `domain:healthcare-compliance` |
+| Research | `research:competitor-landscape` |
+| Infrastructure | `infra:crm`, `infra:data-pipeline` |
 | Personal | `personal`, `personal:finances` |
-| Bizdev | `bizdev`, `bizdev:stripe` |
-| Ops | `company-ops`, `hiring`, `brand` |
 
 ---
 
@@ -167,14 +191,20 @@ All commands also exist as skills that trigger from natural language:
 
 ## Installation
 
-**In Cowork:**
-1. Claude Desktop → Cowork tab → Customize → Upload custom plugin
-2. Select `session-memory-plugin.zip`
-3. Start with `/recall` or `/remember`
+1. Download the plugin zip
+2. Claude Desktop → Cowork tab → Customize → Upload custom plugin
+3. Select `session-memory-plugin.zip`
+4. Start with `/recall` or `/remember`
 
 ---
 
 ## Changelog
+
+### v2.2.0
+- **Business-operator friendly**: All examples, taxonomy, and language updated for general business use — not just technical projects
+- Node conventions now lead with client work, bizdev, strategy, and ops
+- Added strategy/planning node type (`strategy:q2-growth`, `strategy:pricing`)
+- All knowledge examples rewritten for business contexts (proposals, procurement, pricing, onboarding, retention)
 
 ### v2.1.0
 - **Knowledge-first redesign**: Memory now captures insights, lessons, mental models, gotchas, recipes, and corrected beliefs as first-class entry types
@@ -185,7 +215,6 @@ All commands also exist as skills that trigger from natural language:
 - `/recall [topic]` — topic-based knowledge recall across all projects
 - `/search` redesigned to prioritize knowledge entries for "how/what/why" queries
 - `/remember` extraction expanded to cover both project state and knowledge categories
-- Learning/study nodes (`learning:topic`) and domain knowledge nodes (`domain:area`) added to taxonomy
 - Knowledge entries preserved longer than logs during memory consolidation
 
 ### v2.0.0

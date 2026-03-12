@@ -12,14 +12,14 @@ Cross-project, cross-type search across all working memory.
 
 | Query type | Examples | What to search |
 |-----------|---------|----------------|
-| **Knowledge** | "how does auth work", "what do we know about caching" | MODEL, INSIGHT, LESSON, RECIPE entries |
-| **Gotcha** | "any gotchas with Lambda", "watch out for" | GOTCHA entries |
-| **Lesson** | "what went wrong with migration", "what worked for X" | LESSON, CORRECTION entries |
-| **Recipe** | "how do we debug X", "process for Y" | RECIPE entries |
-| **Decision** | "when did we decide on pricing" | DECISIONS in LOGs |
+| **Knowledge** | "how does their approval process work", "what do we know about onboarding" | MODEL, INSIGHT, LESSON, RECIPE entries |
+| **Gotcha** | "any gotchas with Acme's procurement", "watch out for" | GOTCHA entries |
+| **Lesson** | "what went wrong with the rollout", "what worked for retention" | LESSON, CORRECTION entries |
+| **Recipe** | "how do we handle enterprise proposals", "process for onboarding" | RECIPE entries |
+| **Decision** | "when did we decide on pricing", "why did we choose that vendor" | DECISIONS in LOGs |
 | **Person** | "what do we know about Kim" | PEOPLE + LOG mentions |
-| **Topic** | "everything about authentication" | All entry types |
-| **Artifact** | "where's that spreadsheet" | ARTIFACTS in LOGs |
+| **Topic** | "everything about our hiring process" | All entry types |
+| **Artifact** | "where's that proposal", "find the deck" | ARTIFACTS in LOGs |
 | **Blocker** | "what's blocked" | BLOCKERS in SUMMARYs |
 | **Action** | "what's my P0 list" | NEXT ACTIONS in SUMMARYs + LOGs |
 | **Question** | "what questions are open" | QUESTIONS + OPEN THREADS |

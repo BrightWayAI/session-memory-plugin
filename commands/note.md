@@ -12,11 +12,11 @@ The fastest way to commit something to memory. One line, no ceremony.
 
 ```
 /note client:acme Kim confirmed the March 15 deadline
-/note crm-dashboard Deployed v2.3.1 to staging
 /note bizdev Had intro call with Stripe partnership team — they're interested
-/note personal Dentist appointment moved to Thursday 3pm
-/note infra:aws Upgraded RDS to db.r6g.xlarge, monitoring for 48hrs
-/note learning:rust Finished chapter 8 of the Rust book — ownership clicked
+/note hiring Sent offer letter to Jordan for the ops manager role
+/note strategy:pricing Competitor just dropped their entry tier to $29/mo
+/note company-ops Renewed Slack and Notion — annual contracts locked through 2027
+/note learning:ai-tools Finished testing Cursor vs Claude Code — notes in the shared doc
 ```
 
 ---

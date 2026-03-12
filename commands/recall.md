@@ -8,7 +8,7 @@ You are surfacing working memory to set up the current session.
 
 ---
 
-## If a project was specified (e.g. `/recall crm-dashboard`)
+## If a project was specified (e.g. `/recall client:acme`, `/recall strategy:q2-growth`)
 
 1. Search memory for all entries matching that node ID
 2. Pull: SUMMARY, recent LOGs, all knowledge entries (INSIGHT/LESSON/MODEL/GOTCHA/RECIPE/CORRECTION), PEOPLE, SIGNALs
@@ -133,7 +133,7 @@ End with: **"Which project are we picking up today?"**
 
 ---
 
-## If a topic/keyword was specified (`/recall caching`)
+## If a topic/keyword was specified (`/recall pricing`, `/recall onboarding`)
 
 Search all knowledge entries + LOGs for the topic.
 

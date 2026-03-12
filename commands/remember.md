@@ -15,15 +15,16 @@ Scan the full conversation and identify which project(s) this session belongs to
 Check Claude's existing memory for any established project nodes first. If a matching node exists, use it. If the session covers something genuinely new, create a new node using kebab-case.
 
 **Node naming conventions:**
-- Products/apps: use the product name (`crm-dashboard`, `mobile-app`)
-- Client work: prefix with `client:` (`client:acme-corp`, `client:initech`)
-- Internal ops: use a descriptive slug (`company-ops`, `brand`, `hiring`)
-- Business development: `bizdev` or `bizdev:[target]`
+- Client work: prefix with `client:` (`client:acme-corp`, `client:northstar`)
+- Business development: `bizdev` or `bizdev:[target]` (`bizdev:stripe-partnership`)
+- Internal ops: use a descriptive slug (`company-ops`, `brand`, `hiring`, `finance`)
+- Products/services: use the product name (`crm-dashboard`, `onboarding-program`)
+- Strategy/planning: `strategy:[topic]` (`strategy:q2-growth`, `strategy:pricing`)
+- Learning/study: `learning:[topic]` (e.g. `learning:sales-ops`, `learning:ai-tools`)
+- Domain knowledge: `domain:[area]` (e.g. `domain:tax-law`, `domain:healthcare-compliance`)
+- Research/exploration: `research:[topic]` (`research:competitor-landscape`)
 - Infrastructure/tooling: `infra` or `infra:[system]`
 - Personal: `personal` or `personal:[topic]`
-- Research/exploration: `research:[topic]`
-- Learning/study: `learning:[topic]` (e.g. `learning:rust`, `learning:ml-ops`)
-- Domain knowledge: `domain:[area]` (e.g. `domain:tax-law`, `domain:aws-networking`)
 
 If the session spans multiple nodes, you'll commit to each one separately in Step 3.
 
@@ -54,9 +55,9 @@ BLOCKERS:
 - Include who/what is blocking and since when
 
 ARTIFACTS:
-- Files created, docs drafted, code written (include filenames/paths)
+- Documents created, decks built, spreadsheets drafted (include filenames/paths)
 - External resources, URLs, or references worth keeping
-- Configs changed, deployments made, PRs opened
+- Emails sent, proposals delivered, contracts shared, campaigns launched
 
 NEXT ACTIONS:
 - Explicitly stated or implied next steps
@@ -74,36 +75,36 @@ INSIGHTS:
 - New understanding gained during this session
 - "Aha" moments, reframes, or realizations
 - Connections spotted between previously unrelated things
-- Example: "Realized the rate-limiting issue is actually a DNS TTL problem, not a server issue"
+- Example: "Realized our churn isn't a product problem — it's an onboarding problem. Customers who complete setup in week 1 retain at 92%."
 
 LESSONS LEARNED:
 - Things tried that worked → why they worked
 - Things tried that failed → why they failed, what to do instead
 - Mistakes made → what the correct approach is
-- Example: "Tried batch inserts with 10k rows — Postgres chokes. Sweet spot is 1k per batch."
+- Example: "Tried sending proposals same-day — close rate dropped. Waiting 48 hours with a tailored deck closes 3x better."
 
 MENTAL MODELS:
 - How something works, explained for future reference
-- System architecture, business logic, domain rules, workflows
+- Business processes, decision frameworks, domain rules, workflows
 - "The way X actually works is..."
-- Example: "Auth flow: client → API gateway (validates JWT) → service mesh → backend. No direct DB auth."
+- Example: "Their approval process: department head → finance review → VP sign-off → procurement. Skip finance and it stalls for weeks."
 
 GOTCHAS & PITFALLS:
-- Specific traps, footguns, or non-obvious behaviors
+- Specific traps or non-obvious behaviors in processes, tools, or relationships
 - Things that look like they should work but don't
-- Surprising defaults, undocumented behaviors, edge cases
-- Example: "Lambda env vars are NOT encrypted at rest despite docs implying they are."
+- Surprising rules, undocumented requirements, edge cases
+- Example: "Their fiscal year starts in April, not January — all budget conversations need to reference Q1 as April-June."
 
 PATTERNS & RECIPES:
 - Techniques or approaches that proved effective
 - Reusable solutions to specific types of problems
 - Workflows or processes worth repeating
-- Example: "For debugging race conditions: enable trace logging, reproduce with 3 concurrent requests, grep for lock timestamps."
+- Example: "For getting executive buy-in: lead with the metric they own, show the gap, propose one action, name the timeline."
 
 CORRECTED BELIEFS:
 - Assumptions that turned out to be wrong
 - Previous understanding that was updated or reversed
-- Example: "Previously assumed the API was idempotent — it's NOT. Retries cause duplicates."
+- Example: "Previously assumed they were price-sensitive — actually they have budget, they just need ROI framing to get internal approval."
 
 CONTEXT & BACKGROUND:
 - Domain knowledge needed to understand this project or topic

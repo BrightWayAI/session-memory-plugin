@@ -11,11 +11,11 @@ Quick-commit a single piece of knowledge to a project node.
 ## Usage patterns
 
 ```
-/learn crm-dashboard gotcha The date picker silently truncates timezone info on save
-/learn infra:aws model S3 event notifications have at-least-once delivery — design consumers to be idempotent
-/learn learning:rust lesson Fighting the borrow checker usually means the data model is wrong — restructure ownership first
-/learn client:acme recipe For their API: always send X-Tenant-Id header, even on public endpoints, or you get silent 403s
-/learn domain:tax-law insight Section 179 deduction applies to software development costs if capitalized correctly
+/learn client:acme gotcha Their procurement team requires 3 vendor quotes even for renewals — build in 2 weeks lead time
+/learn bizdev:partnerships model Channel partners want co-marketing commitments before signing — lead with the joint campaign plan, not the rev share
+/learn strategy:pricing lesson Tried usage-based pricing with mid-market — too unpredictable for their budgets. Flat tiers with overage charges landed better.
+/learn domain:healthcare-compliance recipe For HIPAA BAAs: use our template, get their legal to redline first, then negotiate — saves 2 rounds of back-and-forth
+/learn learning:sales-ops insight The bottleneck isn't lead gen — it's the handoff from SDR to AE. Leads go cold in the 48-hour gap.
 ```
 
 ---
@@ -38,11 +38,11 @@ If the user provides just natural language (e.g. `/learn that the API rate limit
 
 | If the content sounds like... | Assign type |
 |-------------------------------|-------------|
-| "X works by..." / "The way X works is..." | MODEL |
-| "Watch out for..." / "X silently does Y" / "Don't do X" | GOTCHA |
-| "Tried X, it [worked/failed] because..." | LESSON |
-| "I was wrong about X — actually it's Y" | CORRECTION |
-| "For [situation], do [steps]" | RECIPE |
+| "X works by..." / "Their process is..." / "The way X actually works is..." | MODEL |
+| "Watch out for..." / "Don't assume X" / "They require Y even though..." | GOTCHA |
+| "Tried X, it [worked/failed] because..." / "What worked was..." | LESSON |
+| "I was wrong about X — actually it's Y" / "Turns out..." | CORRECTION |
+| "For [situation], do [steps]" / "The playbook for X is..." | RECIPE |
 | General realization or connection | INSIGHT |
 
 ---
