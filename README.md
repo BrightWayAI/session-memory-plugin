@@ -6,6 +6,8 @@ Most AI conversations are disposable. This plugin makes them cumulative. Every s
 
 Works for any kind of work — client engagements, business development, strategy, operations, hiring, research, learning, and technical projects.
 
+> **Platform note:** This plugin is built for **Cowork** (Claude Desktop). Cowork is the only platform that supports both the plugin system and the file access needed for persistent memory. See [Setup](#setup) for details.
+
 ---
 
 ## Quick Start
@@ -214,7 +216,9 @@ Subdirectories are created dynamically from node prefixes. Any prefix is valid �
 
 ## Setup
 
-### Cowork (Claude Desktop)
+This plugin is designed for **Cowork** (Claude Desktop). It relies on two things that only Cowork provides: the custom plugin system (for loading commands and skills) and the directory mounting system (for reading and writing memory files to your computer). Other platforms have partial support at best.
+
+### Cowork (Claude Desktop) — Full Support
 1. Download the plugin zip
 2. Claude Desktop → Cowork tab → Customize → Upload custom plugin
 3. Select `session-memory-plugin.zip`
@@ -226,11 +230,11 @@ This happens once per conversation. You don't need to manually find or attach th
 
 **Why this is necessary**: Without file access, everything Claude learns dies when the conversation ends. By storing memory as markdown files on your computer, your knowledge, decisions, and context carry forward into every future session. The files are plain text — you can read, edit, or back them up yourself anytime.
 
-### Claude Code
-Memory files are read/written directly since Claude Code has filesystem access. No folder mounting needed — it just works.
+### Claude Code — Partial Support
+Claude Code has filesystem access, so the memory file format works. However, Claude Code doesn't support custom plugins — you'd need to add the command files to your project manually (e.g., as a CLAUDE.md reference or custom slash commands). It can work, but it's not plug-and-play.
 
-### Chat
-Memory doesn't persist automatically in chat yet. You can manually paste node file contents into a project's system prompt for context.
+### Chat — Not Supported
+Chat doesn't have file access or a plugin system. Memory can't persist automatically. You could manually paste node file contents into a project's system prompt, but that's a workaround, not a real integration.
 
 ---
 
