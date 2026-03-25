@@ -6,7 +6,7 @@ Most AI conversations are disposable. This plugin makes them cumulative. Every s
 
 Works for any kind of work — client engagements, business development, strategy, operations, hiring, research, learning, and technical projects.
 
-> **Platform note:** This plugin is built for **Cowork** (Claude Desktop). Cowork is the only platform that supports both the plugin system and the file access needed for persistent memory. See [Setup](#setup) for details.
+> **Platform note:** This plugin supports **Cowork** (Claude Desktop) and **Claude Code**. Both platforms have full access to all 9 commands and the persistent memory system. See [Setup](#setup) for details.
 
 ---
 
@@ -216,7 +216,7 @@ Subdirectories are created dynamically from node prefixes. Any prefix is valid �
 
 ## Setup
 
-This plugin is designed for **Cowork** (Claude Desktop). It relies on two things that only Cowork provides: the custom plugin system (for loading commands and skills) and the directory mounting system (for reading and writing memory files to your computer). Other platforms have partial support at best.
+This plugin supports **Cowork** (Claude Desktop) and **Claude Code**. Each platform has its own integration mechanism, but they share the same memory format and storage location (`~/Documents/Claude/memory/`).
 
 ### Cowork (Claude Desktop) — Full Support
 1. Download the plugin zip
@@ -230,8 +230,39 @@ This happens once per conversation. You don't need to manually find or attach th
 
 **Why this is necessary**: Without file access, everything Claude learns dies when the conversation ends. By storing memory as markdown files on your computer, your knowledge, decisions, and context carry forward into every future session. The files are plain text — you can read, edit, or back them up yourself anytime.
 
-### Claude Code — Partial Support
-Claude Code has filesystem access, so the memory file format works. However, Claude Code doesn't support custom plugins — you'd need to add the command files to your project manually (e.g., as a CLAUDE.md reference or custom slash commands). It can work, but it's not plug-and-play.
+### Claude Code — Supported
+
+Claude Code has native filesystem access — no mounting or approval prompts needed.
+
+**Quick setup (per project):**
+1. Copy the `CLAUDE.md` file and `.claude/` directory into your project root
+2. Start with `/recall` or just ask — natural language triggers work automatically
+
+**Global setup (all projects):**
+1. Copy `CLAUDE.md` to `~/.claude/CLAUDE.md`
+2. Copy the contents of `.claude/commands/` to `~/.claude/commands/`
+3. Memory commands are now available in every project
+
+**What you get:**
+- `CLAUDE.md` loads automatically at session start, giving Claude awareness of your memory system and enabling natural language triggers ("save this", "any gotchas with X", "catch me up")
+- All 9 slash commands work as custom commands via `.claude/commands/`:
+  ```
+  /remember                      # End-of-session commit
+  /recall [project|@person|topic] # Load context
+  /learn [node] [type?] [content] # Capture knowledge
+  /note [node] [content]          # Quick one-liner
+  /search [query]                 # Cross-project search
+  /review [--since] [--until]     # Weekly digest
+  /timeline [project?]            # Chronological view
+  /forget [node] [--archive]      # Archive/remove node
+  /cleanup                        # Memory maintenance
+  ```
+- No approval prompts — Claude Code reads and writes memory files directly
+
+**How it differs from Cowork:**
+- No directory mounting step — filesystem access is native
+- `CLAUDE.md` auto-loads every session (in Cowork, the plugin system handles this)
+- Commands live in `.claude/commands/` instead of the plugin's `commands/` directory
 
 ### Chat — Not Supported
 Chat doesn't have file access or a plugin system. Memory can't persist automatically. You could manually paste node file contents into a project's system prompt, but that's a workaround, not a real integration.
