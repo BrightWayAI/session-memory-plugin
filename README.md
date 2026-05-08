@@ -113,7 +113,9 @@ This is what makes Claude feel like it "knows" you. It carries across all projec
 
 ## Explicit Commands
 
-All commands from v3 still work. Use them when you want manual control.
+All commands from v3 still work. v4 added subagent invocation; v4.2 adds shared-config commands and closing rituals.
+
+### Memory commands
 
 | Command | What it does |
 |---------|-------------|
@@ -121,11 +123,27 @@ All commands from v3 still work. Use them when you want manual control.
 | `/recall [project?]` | Dashboard (no arg) or specific project context |
 | `/learn [node] [type?] [content]` | Quick knowledge capture |
 | `/note [node] [content]` | One-liner fact |
-| `/search [query]` | Cross-project search |
+| `/search [query]` | Cross-project search (delegates to `memory-librarian` for broad queries) |
 | `/review` | Weekly synthesis digest |
 | `/timeline [project?]` | Chronological activity |
 | `/forget [node]` | Archive a project |
 | `/cleanup` | Memory health audit |
+
+### Shared-config commands (v4.2+)
+
+These write to canonical files at `~/Documents/Claude/` that every plugin in the BrightWayAI marketplace reads. Capture once, all plugins benefit.
+
+| Command | What it does |
+|---------|-------------|
+| `/setup-identity` | Captures name, company, role, primary tools, communication defaults to `~/Documents/Claude/identity.md`. Other plugins skip identity questions in their setups. |
+| `/setup-voice` | Captures voice descriptors, banned phrases, sentence rhythm, hook patterns, sign-off style to `~/Documents/Claude/voice.md`. Drafting plugins read from here. |
+
+### Closing rituals (v4.2+)
+
+| Command | What it does |
+|---------|-------------|
+| `/end-day` | 5-min daily close — recap today, prompt for reflection, commit learnings to memory, optionally pre-stage tomorrow via `plan-tomorrow`. |
+| `/end-week` | 15-min Friday close — runs `transcript-reviewer` for uncaptured commitments, `/cleanup` for memory hygiene, `/review` for synthesis, prompts for weekly reflection, optionally pre-stages Monday's outreach via `weekly-outreach`. |
 
 ### Always-On Skill
 
@@ -148,6 +166,10 @@ Commands also fire from natural language:
 | "we're done with X", "archive X" | `forget` |
 | "what have I been working on" | `timeline` |
 | "clean up memory", "what's stale" | `cleanup` |
+| "set up my identity", "configure my profile across plugins" | `setup-identity` |
+| "set up my voice", "update my writing voice" | `setup-voice` |
+| "wrapping up", "calling it a day", "end of day" | `end-day` |
+| "Friday wrap-up", "close out the week", "end of week" | `end-week` |
 
 ---
 
