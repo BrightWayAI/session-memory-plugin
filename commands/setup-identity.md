@@ -10,14 +10,31 @@ After this runs, every plugin's `/setup-*` command reads identity from this file
 
 ---
 
-## Step 0 — Resolve the identity file path
+## Step 0 — Resolve plugin config root
 
-Read `~/.claude-plugin-config-root` to determine where the canonical config files live. You may need to call `request_cowork_directory(~)` once if access hasn't been granted; after that, re-read the pointer.
+Per-plugin config in this marketplace lives under a user-chosen folder, recorded at `~/.claude-plugin-config-root` (a single-line text file in the user's home directory containing the absolute path of the chosen folder).
 
-- **If `~/.claude-plugin-config-root` exists**: read the absolute path from line 1. That's the plugin config root (set by an earlier plugin's first-run setup). Call `request_cowork_directory(<config-root>)` to mount it. The identity file lives at `<config-root>/identity.md`.
-- **If the pointer does not exist**: fall back to the legacy default — `~/Documents/Claude/identity.md`. Call `request_cowork_directory(~/Documents/Claude)`. Other marketplace plugins will offer to standardize the config-root location on their first setup; if the user picks a different root later, identity.md migrates there automatically.
+### A — Try the pointer
 
-For the rest of this document, **`<identity-path>`** refers to the resolved path: either `<config-root>/identity.md` or `~/Documents/Claude/identity.md`.
+Call `request_cowork_directory(~)` once if not already granted, then read `~/.claude-plugin-config-root`.
+
+- **Pointer exists**: read line 1 → that's the config root path. Call `request_cowork_directory(<config-root>)` to mount it. Skip to Step 1.
+- **Pointer missing**: continue to section B.
+
+### B — First-time bootstrap
+
+The pointer doesn't exist, so this is the user's first plugin setup of any kind. Prompt:
+
+> "First-time plugin setup. Where should I store your plugin config — identity, voice, and per-plugin settings? Pick a folder you control (e.g., `~/Documents/Claude/`, `~/Documents/PluginConfig/`, or any path you prefer). The folder will hold `identity.md`, `voice.md`, and a `plugins/` subdirectory with one file per plugin."
+
+Once the user provides the path:
+
+1. Call `request_cowork_directory(<path>)` to mount it.
+2. Create `<path>/plugins/` if it doesn't exist.
+3. Write the absolute path to `~/.claude-plugin-config-root`.
+4. Confirm: "Saved. All marketplace plugin configs will live under `<path>` from now on. You can change this later by editing `~/.claude-plugin-config-root` directly."
+
+For the rest of this document, **`<identity-path>`** refers to `<config-root>/identity.md`.
 
 ---
 
@@ -118,10 +135,6 @@ Create the parent directory if it doesn't exist.
 Summarize what was captured (one short paragraph). Then offer:
 
 > "Identity saved to `<identity-path>`. Other plugins (lead-engine, weekly-outreach, plan-tomorrow, etc.) will read this automatically — you won't be asked these questions again. To configure a specific plugin's domain settings (CRM properties, ICP, voice, offerings catalog, etc.), run that plugin's setup command — those interviews skip identity questions and only ask plugin-specific things."
-
-If no `~/.claude-plugin-config-root` pointer exists, also note:
-
-> "Heads up: identity is currently at `~/Documents/Claude/identity.md` (legacy default). When you run another marketplace plugin's setup, you'll be offered a chance to pick a different config root. If you pick one, identity.md migrates with you."
 
 ---
 
