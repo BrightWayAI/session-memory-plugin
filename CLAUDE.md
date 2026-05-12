@@ -74,6 +74,36 @@ Mention-count alone is too noisy. Usage signals real interest.
 
 **Cross-plugin writes** — multiple plugins write to person pages, always additively (append to Recent interactions, update Last meaningful contact, never overwrite Notes or Identity without explicit user confirmation). See each plugin's CHANGELOG for which sections it touches.
 
+### Decay model (v4.4+)
+
+Every knowledge entry carries `[confirmed:YYYY-MM-DD] [recalled:YYYY-MM-DD]` tags. `confirmed` updates when the entry is re-affirmed; `recalled` updates when `/recall` surfaces it. Entries pass through four states based on the age of `confirmed:`:
+
+- **Fresh** — within `threshold_fresh` days (default 60)
+- **Stale** — `threshold_fresh` to `threshold_dormant` (60-180 default); `/recall` flags `[stale-confidence]`
+- **Dormant** — `threshold_dormant` to `threshold_cold` (180-365 default); `/rehearse` surfaces for triage
+- **Demoted** — moved by user action to `## Demoted knowledge` section at bottom of node
+- **Archived** — moved to `<config-root>/memory/archive/`
+
+Defaults configured at `<config-root>/memory/.decay-config.md`. Per-type modifiers (GOTCHA and RECIPE decay 1.5× slower; CORRECTION never decays). Per-node `decay_profile: fast | normal | slow` in front-matter for nodes with faster/slower turnover.
+
+Full spec at `references/decay-model.md`. Forgetting is bidirectional with learning — `/remember` adds, `/recall` flags aging, `/rehearse` consolidates, `/cleanup` audits.
+
+### Demoted knowledge convention (v4.4+)
+
+When the user demotes a knowledge entry (via `/recall` recall-time action, or via `/rehearse`, or as a supersede from `/remember`'s concept-drift detection), the entry moves to a `## Demoted knowledge` section at the bottom of its node file. The entry stays readable; it just renders below active content in `/recall`, gets de-prioritized by `memory-librarian`, and is excluded from `/rehearse` selection.
+
+Format:
+
+```markdown
+## Demoted knowledge
+
+[node-id] INSIGHT (YYYY-MM-DD): [body] [confirmed:YYYY-MM-DD] [recalled:YYYY-MM-DD]
+  ↳ demoted YYYY-MM-DD by [user-action | supersede], reason: [...]
+  ↳ superseded by: [reference to new entry, if applicable]
+```
+
+`/forget --revive <entry-ref>` (planned for later) brings an entry back to active.
+
 ## Always-On Behaviors (v4)
 
 These run automatically in EVERY conversation. No commands needed.
@@ -148,6 +178,7 @@ When you detect these patterns, run the corresponding command automatically. **C
 | "what have I been working on", "timeline of X" | Run `/timeline` — chronological view |
 | "archive X", "close out X" | Run `/forget` — archive or remove node |
 | "clean up memory", "what's stale" | Run `/cleanup` — maintenance audit |
+| "is this still true", "rehearse my memory", "what should I confirm or forget" | Run `/rehearse` — aging-knowledge triage (v4.4+) |
 
 ## Slash Commands
 
@@ -164,6 +195,7 @@ If `.claude/commands/` is present, these slash commands are available:
 | `/timeline [project?] [--since] [--until]` | Chronological activity log |
 | `/forget [node] [--archive\|--merge target]` | Archive, merge, or remove a node |
 | `/cleanup` | Memory health audit and maintenance |
+| `/rehearse` | Aging-knowledge triage — surfaces 3-5 stale entries and asks "still true? still useful?" (v4.4+) |
 
 ## Per-Project Config
 
