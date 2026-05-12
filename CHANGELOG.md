@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.1.3] — Platform-agnostic Step 0 (2026-05-12)
+
+### Changed
+- **`/setup-identity` and `/setup-voice` Step 0 instructions are now platform-agnostic.** Every `request_cowork_directory(...)` call is wrapped in a conditional: "In Cowork, call `request_cowork_directory(...)`. In Claude Code (or any environment with direct filesystem access), no mount is needed." This lets the same plugin source serve both Cowork and Claude Code without two divergent code paths.
+
+### Why this matters
+Phase 0 of SECOND-BRAIN-V2-SPEC. Removes the implicit Cowork-only assumption that was forcing Claude Code users to debug mount calls that don't exist in their runtime. Future plugins (daily-brief, end-day, etc.) inherit this convention.
+
 ### Fixed
 - `.claude/commands/remember.md` now includes v4 features: silent mode, user observation extraction, user node writes, and dashboard template (parity with `commands/remember.md`).
 
