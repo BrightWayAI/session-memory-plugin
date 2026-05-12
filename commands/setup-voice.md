@@ -1,5 +1,5 @@
 ---
-description: Capture your writing voice once (descriptors, banned phrases, sentence-length preference, hook patterns, sign-off style) in one canonical voice.md. All drafting plugins (bizdev-outreach, weekly-outreach, lead-engine, news-curator, post-assembler, client-status, referral-engine) read from this file so your voice stays consistent and you only update it in one place. Honors `~/.claude-plugin-config-root` if set; otherwise writes to `~/Documents/Claude/voice.md` by default. Re-run anytime to refine.
+description: Capture your writing voice once (descriptors, banned phrases, sentence-length preference, hook patterns, sign-off style) in one canonical voice.md. All drafting plugins (bizdev-outreach, weekly-outreach, lead-engine, news-curator, post-assembler, client-status, referral-engine) read from this file so your voice stays consistent and you only update it in one place. Honors `~/Documents/.claude-plugin-config-root` if set; otherwise writes to `~/Documents/Claude/voice.md` by default. Re-run anytime to refine.
 ---
 
 # /setup-voice
@@ -12,11 +12,11 @@ After this runs, every drafting plugin reads voice from this file. You update vo
 
 ## Step 0 — Resolve plugin config root
 
-Per-plugin config in this marketplace lives under a user-chosen folder, recorded at `~/.claude-plugin-config-root` (a single-line text file in the user's home directory containing the absolute path of the chosen folder).
+Per-plugin config in this marketplace lives under a user-chosen folder, recorded at `~/Documents/.claude-plugin-config-root` (a single-line text file in the user's home directory containing the absolute path of the chosen folder).
 
 ### A — Try the pointer
 
-Call `request_cowork_directory(~)` once if not already granted, then read `~/.claude-plugin-config-root`.
+Call `request_cowork_directory(~/Documents)` once if not already granted, then read `~/Documents/.claude-plugin-config-root`.
 
 - **Pointer exists**: read line 1 → that's the config root path. Call `request_cowork_directory(<config-root>)` to mount it. Skip to Step 1.
 - **Pointer missing**: continue to section B.
@@ -31,8 +31,8 @@ Once the user provides the path:
 
 1. Call `request_cowork_directory(<path>)` to mount it.
 2. Create `<path>/plugins/` if it doesn't exist.
-3. Write the absolute path to `~/.claude-plugin-config-root`.
-4. Confirm: "Saved. All marketplace plugin configs will live under `<path>` from now on. You can change this later by editing `~/.claude-plugin-config-root` directly."
+3. Write the absolute path to `~/Documents/.claude-plugin-config-root`.
+4. Confirm: "Saved. All marketplace plugin configs will live under `<path>` from now on. You can change this later by editing `~/Documents/.claude-plugin-config-root` directly."
 
 For the rest of this document, **`<voice-path>`** refers to `<config-root>/voice.md`.
 

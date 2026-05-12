@@ -1,5 +1,5 @@
 ---
-description: Capture user identity (name, company, role, what you do, time zone, primary tools) once, in one canonical identity.md. Other plugins in the this marketplace read from this file during their own setup interviews so identity isn't asked across multiple setups. Honors `~/.claude-plugin-config-root` if set; otherwise writes to `~/Documents/Claude/identity.md` by default. Re-run anytime to update.
+description: Capture user identity (name, company, role, what you do, time zone, primary tools) once, in one canonical identity.md. Other plugins in the this marketplace read from this file during their own setup interviews so identity isn't asked across multiple setups. Honors `~/Documents/.claude-plugin-config-root` if set; otherwise writes to `~/Documents/Claude/identity.md` by default. Re-run anytime to update.
 ---
 
 # /setup-identity
@@ -12,11 +12,11 @@ After this runs, every plugin's `/setup-*` command reads identity from this file
 
 ## Step 0 — Resolve plugin config root
 
-Per-plugin config in this marketplace lives under a user-chosen folder, recorded at `~/.claude-plugin-config-root` (a single-line text file in the user's home directory containing the absolute path of the chosen folder).
+Per-plugin config in this marketplace lives under a user-chosen folder, recorded at `~/Documents/.claude-plugin-config-root` (a single-line text file in the user's home directory containing the absolute path of the chosen folder).
 
 ### A — Try the pointer
 
-Call `request_cowork_directory(~)` once if not already granted, then read `~/.claude-plugin-config-root`.
+Call `request_cowork_directory(~/Documents)` once if not already granted, then read `~/Documents/.claude-plugin-config-root`.
 
 - **Pointer exists**: read line 1 → that's the config root path. Call `request_cowork_directory(<config-root>)` to mount it. Skip to Step 1.
 - **Pointer missing**: continue to section B.
@@ -31,8 +31,8 @@ Once the user provides the path:
 
 1. Call `request_cowork_directory(<path>)` to mount it.
 2. Create `<path>/plugins/` if it doesn't exist.
-3. Write the absolute path to `~/.claude-plugin-config-root`.
-4. Confirm: "Saved. All marketplace plugin configs will live under `<path>` from now on. You can change this later by editing `~/.claude-plugin-config-root` directly."
+3. Write the absolute path to `~/Documents/.claude-plugin-config-root`.
+4. Confirm: "Saved. All marketplace plugin configs will live under `<path>` from now on. You can change this later by editing `~/Documents/.claude-plugin-config-root` directly."
 
 For the rest of this document, **`<identity-path>`** refers to `<config-root>/identity.md`.
 
