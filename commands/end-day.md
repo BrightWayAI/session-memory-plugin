@@ -104,24 +104,25 @@ Behavior:
 
 ---
 
-## Step 2 — Transcript review for uncaptured commitments
+## Step 2 — Transcript review (v4.3+: two streams)
 
-**Goal:** surface commitments the user made today that aren't already in CRM tasks or cortex memory.
+**Goal:** surface (a) commitments the user made today that aren't already in CRM tasks or cortex memory, and (b) learnings from the day's transcripts that aren't already captured in node content.
 
-If the `transcript-reviewer` agent is available (cortex bundles it), invoke it with:
-- `time-window: 1 day`
-- `compare-against: HubSpot tasks owned by user + cortex DASHBOARD.md`
+Read `<config-root>/plugins/cortex.note-sources.md` to get the configured note-sources list. Filter to enabled sources whose scope (global or `project:<node-id>`) matches the run's relevant nodes (sources scoped to a project node are included if that project has meetings in today's window).
 
-The agent returns a delta — only items missing from existing tracking, formatted as:
+If no sources are configured → skip this step with a one-line note: "No note sources configured. Run `/setup-sources` to enable transcript mining." Proceed to Step 2a.
 
-```
-- [transcript: <meeting title> on <date>] You committed to: <one-line>
-- ...
-```
+Invoke `transcript-reviewer` with:
+- `time_window: 1 day`
+- `note_sources: [<filtered list>]`
+- `node_inventory`, `node_summaries`, `dashboard_snapshot` (built from `<config-root>/memory/`)
+- `crm_task_snapshot`: current HubSpot tasks owned by the user
 
-### User gate after Step 2
+The agent returns two streams: `commitments_delta` and `learnings_delta`.
 
-For each item in the delta, prompt:
+### Commitments stream — user gate (unchanged from pre-v4.3)
+
+For each item in `commitments_delta`, prompt per item:
 
 > "Convert this to a CRM task / cortex P0 / both / skip?"
 
@@ -132,26 +133,138 @@ For each item in the delta, prompt:
 
 If the delta is empty ("Nothing missing — all commitments already tracked"), confirm and continue. Don't pad.
 
+### Learnings stream — DEFERRED to Step 2b unified gate
+
+The `learnings_delta` stream is NOT reviewed here. Hold the proposals; they get merged with `conversation-miner` and `activity-miner` output in Step 2a, then reviewed once in Step 2b. This avoids review-fatigue and lets cross-source dedup happen across miners.
+
+---
+
+## Step 2a — Parallel mining of non-transcript sources (v4.3+)
+
+**Goal:** mine the day's other Cowork sessions and CRM/email/calendar events for learnings that aren't yet in node content.
+
+Run the following agents **in parallel** (one chat message, multiple Task tool blocks):
+
+1. `conversation-miner` with:
+   - `time_window: 1 day`
+   - `current_session_id`: the session running `/end-day` (exclude from mining)
+   - `node_inventory`, `node_summaries`, `dashboard_snapshot`
+   - `user_email`, `user_local_tz` (from identity.md)
+
+2. `activity-miner` with:
+   - `time_window: 1 day`
+   - `node_inventory`, `node_summaries`, `dashboard_snapshot`
+   - `user_email`, `user_local_tz`
+
+`code-miner` is deferred to a later cortex version (not built in v4.3).
+
+Each miner runs its own cheap-tier triage gate first. Miners that triage-skip return empty and cost ~nothing.
+
+### Merge step
+
+Combine three sources of proposals:
+
+- `transcript-reviewer`'s `learnings_delta` from Step 2
+- `conversation-miner`'s `learnings_delta`
+- `activity-miner`'s `learnings_delta`
+
+Apply cross-miner dedup:
+
+- For each proposal in the conversation-miner stream, check against transcript-reviewer's stream — if a proposal on the same target_node has > 70% content overlap, drop the conversation-miner version (transcript is the source of record).
+- For each proposal in activity-miner's stream, do the same against transcript-reviewer.
+- Within each remaining set, dedup against existing node content (n-gram > 70% overlap → drop).
+
+Group surviving proposals by `target_node`. Sort within each group by `confidence DESC, update_type` (corrections first, then decisions/insights, then gotchas/models, then relationship-context).
+
+---
+
+## Step 2b — Unified review gate (v4.3+)
+
+Present the merged proposals once. Format:
+
+```
+Today's mining surfaced [N] proposed updates across [K] nodes:
+
+  ▸ <node-id> (<count>)
+      [<update_type>, <confidence>] <content>
+        — <source>, <ref>
+      [<update_type>, <confidence>] <content>
+        — <source>, <ref>
+        cross-ref → <other-node-id>: <one-line content of the linked proposal>
+      ...
+
+  ▸ <other-node-id> (<count>)
+      ...
+
+Review:
+  (a)ccept all
+  (s)elect per node — show one node at a time, accept/edit/skip per item
+  (e)dit each — walk every item individually
+  (h)igh-confidence only — show only high-confidence items, skip the rest
+  (k)skip all
+```
+
+### Auto-expand cross-refs
+
+When rendering a proposal that has `cross_ref: [<id>]`, render the linked proposal's `content` inline as a "cross-ref →" line under it (see format above). The user reviews both in context without having to jump.
+
+### High-confidence toggle behavior
+
+If the user picks `(h)`, render only proposals with `confidence: high`. The rest are deferred (logged as "deferred — review tomorrow" in the dismissal log — they re-surface in tomorrow's mining if still applicable; they don't get auto-committed and they don't permanently disappear).
+
+### New-node-creation confirmation
+
+If any proposal has `node_type: new` (with a `new_node_suggestion`), surface a dedicated confirmation BEFORE accepting any content into it:
+
+> "Create new node `<id>`? Type: <type>. Scope: <one-line>. (y / edit-scope / n)"
+
+If `y` → create the node file with a Scope section (interview the user inline for the 4 Scope fields), then accept the proposal into it.
+If `edit-scope` → walk the 4-field Scope interview before creating.
+If `n` → drop all proposals targeting that new node (or, on a per-proposal basis, ask whether to re-route each one to an existing node).
+
+This makes taxonomy growth explicit rather than silent.
+
+### Dismissal log
+
+Skipped proposals (whether from `(k)skip all`, per-item skip, or implicit when `(h)high-confidence` was chosen) are logged to `<config-root>/memory/dismissed-proposals.log` (append-only), keyed by a hash of `(source.note_id or session_id or event_ref) + content` so they don't re-surface tomorrow. Format:
+
+```
+<ISO timestamp>  <proposal_id>  <target_node>  <update_type>  <source_kind>:<ref-hash>  <one-line content>
+```
+
+Miners read this log at the top of every run and skip any proposal whose source-ref + content hash matches a dismissed entry within the last 7 days. (After 7 days, re-surfacing is permitted — the user may have changed their mind.)
+
+### Accepted proposals → Step 3
+
+Accepted proposals (and edits) are passed forward to Step 3 as additional input alongside the current session's content.
+
 ---
 
 ## Step 3 — Cortex auto-commit with cheap-tier triage
 
 **Goal:** capture the day's learnings, decisions, and observations to memory — without burning Sonnet tokens on trivial conversations.
 
-Run `/remember` in silent mode. **Step 0 (cheap-tier triage) is mandatory here** — it's the whole reason this step is cost-disciplined.
+Run `/remember` in silent mode with **two inputs**:
 
-- Classifier decides commit-worthiness and node list
+1. The current session's content (normal /remember source)
+2. The list of accepted proposals from Step 2b — these are pre-routed (each has a `target_node` and `section`) so /remember treats them as already-classified rather than re-classifying through Step 0's Haiku triage. The triage runs ONLY on the current session content; accepted proposals bypass it (the user just accepted them, that's the commit-worthy signal).
+
+**Step 0 (cheap-tier triage) is mandatory for the current-session content** — it's the whole reason the session half is cost-disciplined.
+
+- Classifier decides commit-worthiness and node list for the current session
 - Synthesis runs only on affected nodes
-- Trivial day (greetings + scheduling, no decisions) → `commit: false`, one line in `triage-log.md`, no Sonnet call
-- Substantive day → normal flow, with the Phase 3 person-page graduation logic firing where relevant
+- Trivial day with no accepted proposals → `commit: false` on the session AND empty accepted-proposals list → one line in `triage-log.md`, no Sonnet call
+- Substantive day OR accepted proposals exist → normal flow, with the Phase 3 person-page graduation logic firing where relevant
 
 User-observation CORRECTIONs always commit to the `user` node regardless of the classifier's decision (see `skills/observe/SKILL.md` for the override rule).
 
+When writing the proposals to their target nodes, follow the v4.3+ knowledge-entry tag convention (see `/remember` Step 3 C.0): every new entry gets `[confirmed:<today>] [recalled:<today>]` tags. Entries the mining layer **updates** (e.g., a re-affirmed insight) get `[confirmed:<today>]` while leaving `[recalled:...]` to be updated by the next /recall that surfaces them.
+
 Confirm briefly to the user (not verbose):
 
-> "Memory updated: [N] nodes touched, [M] knowledge entries committed, [K] person-page updates."
+> "Memory updated: [N] nodes touched, [M] knowledge entries committed, [K] person-page updates, [P] mined proposals applied."
 
-If the classifier returned `commit: false`, say: "Quiet day — nothing material to commit. Logged the audit line." and continue.
+If the classifier returned `commit: false` AND no proposals were accepted, say: "Quiet day — nothing material to commit. Logged the audit line." and continue.
 
 ---
 
@@ -207,13 +320,14 @@ Adjust the count summary based on what actually ran (don't fabricate counts for 
 
 ## Default behavior on user-gate timeouts
 
-If the user is running this in a fire-and-forget mode (e.g., via a scheduled task, or they walked away), apply these defaults after ~10 seconds of no response:
+If the user is running this in a fire-and-forget mode (e.g., via a scheduled task, or they walked away), apply these defaults:
 
-- Step 1 gate → "Wait"
-- Step 2 gate → "Skip" per item (don't auto-create CRM tasks without confirmation — that's destructive on the wrong side)
-- Step 5 gate → "Wait"
+- **Step 1 gate** → "Wait" after ~10s (default)
+- **Step 2 commitments gate** → "Skip" per item after ~10s (don't auto-create CRM tasks without confirmation — destructive on the wrong side)
+- **Step 2b unified review gate** → "Skip all" after ~30s. Never auto-commit mined proposals; too easy to pollute nodes silently. The 30s window (vs. 10s elsewhere) is longer because this gate has more density and the user may actually be reviewing it.
+- **Step 5 brief-pre-stage gate** → "Wait" after ~10s
 
-The chain should never block. If the user is engaged, gates pause for input. If not, gates pick the conservative default and move on.
+The chain should never block. If the user is engaged, gates pause for input. If not, gates pick the conservative default and move on. Skipped Step 2b proposals are logged to the dismissal log per the Step 2b spec so they don't re-surface tomorrow.
 
 ---
 

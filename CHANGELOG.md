@@ -6,6 +6,59 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.3.0] — `/end-day` mining layer (2026-05-12)
+
+### Added — Mining layer (the main change)
+- **`/end-day` now mines beyond the current chat session.** Three read-only agents run in parallel at Step 2a after the existing transcript-review (Step 2):
+  - **`transcript-reviewer` (expanded — was commitments-only)**: now returns TWO output streams — `commitments_delta` (unchanged) AND `learnings_delta` (decisions, insights, gotchas, models, relationship context, blockers, recipes, corrections). Reads notes from all configured sources via the new adapter pattern, not just Granola. Cross-source dedup merges the same meeting captured by multiple providers (e.g., Granola + Gemini) before extraction.
+  - **`conversation-miner` (new)**: mines the user's other Cowork sessions in the time window. Excludes the current session, sessions already committed via `/remember`, sessions under ~4k tokens, and sessions tagged `[no-mine]`. Groups same-topic sessions before extraction so one insight surfacing in 3 sessions = 1 reinforced proposal, not 3 duplicates.
+  - **`activity-miner` (new)**: mines CRM events (deal stage changes, lifecycle changes, task closures with outcome), sent email (user's own outbound decisions only), and calendar event metadata. Privacy guardrails: paraphrase always, hard-skip `[CONFIDENTIAL]` threads, no verbatim quotes of counterparties. Scoped to events, not extraction from CRM note bodies.
+- **`code-miner` deferred to v4.4+** per user decision (low marginal value for consulting/ops-focused users).
+
+### Added — Unified review gate (Step 2b)
+- Merges all mining proposals across the three agents, dedupes against existing node content, groups by `target_node`, sorts by `confidence DESC, update_type`.
+- One review gate per `/end-day` run instead of three. Modes: accept-all / select-per-node / edit-each / **high-confidence-only** / skip-all.
+- **Cross-refs auto-expand inline** — when a proposal's `cross_ref` links to another proposal, the linked content renders as a "cross-ref →" line beneath it so the user reviews both in context.
+- **New-node creation is explicit.** Proposals with `node_type: new` require a confirmation step (with inline Scope-section interview) before any content is accepted into them. Prevents silent taxonomy bloat.
+- **Dismissed proposals are logged** at `<config-root>/memory/dismissed-proposals.log` (append-only, keyed by source-ref + content hash). Miners read this log at the head of every run and skip matching items within 7 days so dismissals don't re-surface tomorrow. After 7 days, re-surfacing is permitted.
+- **30s gate timeout** with skip-all default (longer than the 10s elsewhere because the gate has more density and the user may actually be reviewing).
+
+### Added — Source-agnostic note-source adapters
+- **`agents/lib/note-source-adapters.md`**: prompt-only adapters for `granola`, `gemini` (drive-folder and gmail-search methods), `fireflies`, `otter`, `notion`, `drive-folder` (generic), `gmail-label` (generic), `custom` (free-form). Each adapter documents config schema, tools used, `fetch(time_window)` logic, and `health_check()`.
+- **Adding a new provider is one new section in this file — no code change required.**
+- **`<config-root>/plugins/cortex.note-sources.md`**: configured source list (markdown wrapper with a fenced YAML block). Per-source fields: `id`, `provider`, `label`, `enabled`, `scope` (`global` or `project:<node-id>`), `config`. Per-project scope lets a user run Fireflies only on one client and Granola everywhere else.
+
+### Added — Node-routing model
+- **Scope section convention on domain nodes.** Four fields: `Topics:`, `Aliases:`, `What goes here:`, `What does NOT go here:`. Used by miners to route extracted content correctly.
+- **One-time migration in `/end-day` Pre-chain B**: detects domain-shaped nodes (root-level `.md` files plus first-level nodes in non-reserved subdirectories), synthesizes Scope drafts from existing content, prompts user to accept/edit/skip per node. Open-ended "create new domain nodes?" step after. Marker file `<config-root>/memory/.scope-migration-done` prevents re-prompting. Re-run via `/end-day --rerun-scope-migration`.
+- **Generic detection — no hardcoded node names anywhere.** Migration scans whatever the user has.
+- **`references/node-routing.md`** and **`references/note-sources.md`**: docs covering the routing algorithm and source config schema.
+
+### Added — `/setup-sources` command
+- New `commands/setup-sources.md` and `skills/setup-sources/SKILL.md` — standalone interview to configure note sources.
+- Walks provider menu (Granola / Gemini / Fireflies / Otter / Notion / Drive-folder / Gmail-label / custom) and per-provider config questions.
+- **Mandatory health-check on every new/updated source** — adapter's `health_check()` runs during setup; failures surface verbatim with options to fix/disable/remove. Loud failure at setup, not silent at `/end-day`.
+- Supports `--health-check-only` and `--remove <source-id>` flags for maintenance.
+
+### Added — v4.4 decay substrate
+- **`[confirmed:YYYY-MM-DD] [recalled:YYYY-MM-DD]` tags on every knowledge entry.** `confirmed:` updates when an entry is re-affirmed or referenced as evidence. `recalled:` updates when `/recall` surfaces the entry to the user. Pre-v4.3 entries are treated as if both default to the original commit date.
+- **`/recall` updates the `recalled:` tag** on every entry it renders. Backfills tags on pre-v4.3 entries as it touches them.
+- **`memory-librarian` returns tag values in Source Entries** so callers can update `recalled:` after consuming the list. Agent stays strictly read-only.
+- **v4.3 maintains the tags but does not yet decay or demote.** v4.4 reads them.
+
+### Changed
+- `/remember` Step 3 C: knowledge-entry formats updated to include the `[confirmed:...] [recalled:...]` tag suffix
+- `/end-day` Step 3: now accepts pre-routed accepted-proposals as a second input alongside the current-session content. Accepted proposals bypass the Haiku triage (the user just accepted them).
+- `skills/end-day/SKILL.md` description rewritten to reflect the mining layer
+
+### Why this matters
+The earlier `/end-day` only auto-committed the current Cowork chat session. Most of the user's day happens elsewhere — Granola meetings, other Cowork sessions, CRM activity, sent email. None of that flowed into the right cortex nodes. The mining layer closes that gap with three read-only agents that route extracted content through a single unified review gate, scoped to actually-changed events and source-agnostic notes via the adapter pattern.
+
+The `[confirmed/recalled]` tags ship as substrate for v4.4's forgetting/decay layer (coming next).
+
+### v4.3 → v4.4 sequencing
+v4.4 will be the forgetting half: decay weights on retrieval, concept-drift detection on contradicting entries, auto-archive of dormant person pages, periodic "still true?" rehearsal prompts. Builds on the substrate that lands in v4.3.
+
 ## [4.2.0] — Second-brain v2 Phases 3-6 (2026-05-12)
 
 ### Added — Person pages (Phase 3)
