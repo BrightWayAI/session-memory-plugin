@@ -6,6 +6,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.7.1] — Karpathy patterns: memory/log.md chronicle + autonomy slider (2026-05-16)
+
+### Added — `memory/log.md` chronicle
+- New `references/log-chronicle.md` — formal spec for the unified append-only operations log at `<config-root>/memory/log.md`. Grep-friendly date prefixes (`## [YYYY-MM-DD HH:MM] <op> | <summary>`). Karpathy LLM-wiki `log.md` pattern.
+- New `## Log` step appended to: `/listen` (Step 7.5), `/morning` (Step 4.5), `/end-day` (Step 5.7), `/end-week` (Step 5.7), `/reindex` (Step 5.5), `/research-gaps` (Step 4.5), `/merge-research-draft` (Step 4.5), `/cleanup` (Step 4.7), `/rehearse` (Step 4.5). Each appends one line at completion. No silent commands log; the log is for audit-worthy operations only.
+- CLAUDE.md storage-layout section updated to mention `memory/log.md` and link to the spec.
+- Optional retention controls via `<config-root>/plugins/cortex.user-context.md` (`log_chronicle.max_entries`, `log_chronicle.archive_yearly`).
+
+### Added — per-command autonomy slider
+- New `references/autonomy.md` — Karpathy Software 3.0 "Iron Man suit with autonomy sliders" pattern. Three modes per command: `auto` (no confirmation), `suggest` (default; suggest+confirm), `confirm` (extra-strict; confirm each material step).
+- Default settings tuned to operational risk: `/recall`, `/search`, `/timeline`, `/reindex`, `/listen`, `/note`, `/diagnose` → `auto`. `/forget`, `/morning`, `/merge-research-draft`, `/lead-draft`, `/track-time`, `/generate-invoices`, `/setup-*` → `confirm`. Everything else → `suggest`.
+- User override at `<config-root>/plugins/cortex.user-context.md` under `autonomy:` section. Per-command opt-in; users tune as trust develops.
+- nucleus-router skill (v0.1.3) reads the autonomy section before suggesting confirmations. `auto` mode runs the command directly with a one-line "Running `/X` now" note. `confirm` mode adds emphasis to the suggestion.
+
+### Why this matters
+- The log chronicle gives a grep-friendly answer to "what did I do on date X" across every audit-worthy operation. Closes the last LLM-wiki pattern gap.
+- The autonomy slider lets trust develop unevenly across capabilities. Commands you trust (`/note`, `/recall`) stop interrupting. Commands with blast radius (`/lead-draft`, `/generate-invoices`) stay gated.
+
 ## [4.7.0] — Overnight learning: /listen + /morning + hot.md (2026-05-16)
 
 ### Why this exists

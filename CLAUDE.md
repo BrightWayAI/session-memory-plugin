@@ -41,6 +41,8 @@ You have a persistent memory system stored as markdown files at `~/Documents/Cla
 
 `archive/` (top-level under `<config-root>/`, not `memory/archive/`) is the immutable raw substrate written nightly by `/listen` from external connectors. Mining agents read from here; nothing writes back. See `references/archive-layout.md`.
 
+`memory/log.md` is the unified append-only chronicle of audit-worthy Nucleus operations (v4.7.1+). Every `/listen`, `/morning`, `/end-day`, `/end-week`, `/reindex`, `/research-gaps`, `/merge-research-draft`, `/cleanup`, `/rehearse` appends a single grep-friendly line at completion. Format: `## [YYYY-MM-DD HH:MM] <op> | <one-line summary>`. See `references/log-chronicle.md`. Inspired by Karpathy's LLM-wiki `log.md` pattern — answers "what happened on date X" via `grep`.
+
 Node-to-file mapping: `client:acme-corp` → `memory/client/acme-corp.md`, `person:sarah-chen` → `memory/person/sarah-chen.md`. Nodes without a prefix map directly to `memory/{node}.md`. Create directories as needed.
 
 ### Person pages (v4.2+)

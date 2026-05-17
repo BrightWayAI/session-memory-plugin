@@ -178,6 +178,20 @@ If today is not Sunday, skip Step 7.
 
 ---
 
+## Step 7.5 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] listen | archived <target_date> (<events> events, <inbox> inbox, <mentions> mentions, <transcripts> transcripts, <errors> errors). <P> proposals staged.
+```
+
+Create `log.md` if it doesn't exist (with the standard header per spec).
+
+If the chronicle write fails, log internally and continue — don't fail the run on an audit-log error.
+
+---
+
 ## Step 8 — Exit
 
 Print a one-line summary to stdout (visible to scheduled-task logs):

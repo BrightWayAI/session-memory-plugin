@@ -137,6 +137,16 @@ If `/rehearse` was invoked by `/end-week` (Step 5 of that chain), surface the co
 
 ---
 
+## Step 4.5 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] rehearse | walked <N> entries. <C> re-confirmed, <D> demoted, <S> skipped (in skip-log for 30d).
+```
+
+---
+
 ## Step 5 — Update .rehearse-queue.md
 
 After the batch is processed, remove any successfully-handled entries from `<config-root>/memory/.rehearse-queue.md` (entries that `/cleanup` had previously deferred). Skipped entries stay in the queue and may be re-surfaced in the next rehearsal.

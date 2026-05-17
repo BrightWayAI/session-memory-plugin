@@ -103,6 +103,16 @@ Skip this step silently if cortex is below v4.5 (no `/research-gaps` available).
 
 ---
 
+## Step 5.7 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] end-week | transcript-reviewer flagged <T> commitments, cleanup <C> actions, rehearse <R> entries, research-gaps <G>. Monday outreach <staged|skipped>.
+```
+
+---
+
 ## Step 6 — Close
 
 Confirm completion:

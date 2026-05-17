@@ -117,6 +117,16 @@ Both happen unconditionally so the morning ends with fresh substrate.
 
 ---
 
+## Step 4.5 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] morning | merged <a> / <total> proposals from <draft-date> draft. <r> rejected, <d> deferred. hot.md + memory/index.md refreshed.
+```
+
+---
+
 ## Step 5 — Report and offer brief handoff
 
 ```

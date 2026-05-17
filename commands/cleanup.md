@@ -219,6 +219,16 @@ If no actions touched memory in Step 4, skip this step.
 
 ---
 
+## Step 4.7 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] cleanup | <A> actions taken. Section H: <person-pages-archived>. Section I: <dormant-entries-deferred> deferred, <demoted> demoted.
+```
+
+---
+
 ## Step 5 — Post-cleanup summary
 
 ```

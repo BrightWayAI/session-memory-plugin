@@ -97,6 +97,16 @@ After any node writes, run the indexer (per `skills/indexer/SKILL.md`) to refres
 
 ---
 
+## Step 4.5 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] merge-research-draft | walked <T> findings from <date>-research-gaps.md. <A> accepted, <R> rejected, <D> deferred.
+```
+
+---
+
 ## Step 5 — Report
 
 ```

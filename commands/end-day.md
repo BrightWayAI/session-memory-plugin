@@ -364,7 +364,19 @@ Pure file walk + filter + render per `references/hot-cache.md`. Zero LLM cost.
 
 If `hot_cache.enabled: false` is set in user-context, skip this step.
 
-No user gate. If hot-cache generation fails, log and continue to Step 6.
+No user gate. If hot-cache generation fails, log and continue to Step 5.7.
+
+---
+
+## Step 5.7 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] end-day | <quick|full> mode. <N> commitments captured, <M> reflection answers, <K> memory entries committed. tomorrow brief pre-staged.
+```
+
+Adjust the metric counts based on what actually ran (don't include reflection-count if Step 4 was skipped).
 
 ---
 

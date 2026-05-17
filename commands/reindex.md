@@ -86,6 +86,16 @@ If `<config-root>/memory/.reindex-queue` exists, delete it. The marker only exis
 
 ---
 
+## Step 5.5 — Log to chronicle (v4.7.1+)
+
+Append one line to `<config-root>/memory/log.md` per `references/log-chronicle.md`:
+
+```
+## [<today HH:MM>] reindex | <N> nodes catalogued (<X> fresh, <Y> stale, <Z> dormant, <W> cold). <D> demoted entries across <M> nodes.
+```
+
+---
+
 ## Step 6 — Report
 
 One-line summary:
