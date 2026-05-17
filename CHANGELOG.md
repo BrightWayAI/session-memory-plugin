@@ -6,6 +6,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.7.0] — Overnight learning: /listen + /morning + hot.md (2026-05-16)
+
+### Why this exists
+Cortex was event-driven: passive observation during sessions, auto-commit at session close, mining triggered by `/end-day`. Nothing learned while the user slept. v4.7 adds the missing layer — a nightly ingest pipeline that pulls yesterday's substrate into an immutable archive, mines it autonomously, and stages proposals for a 2-minute morning review.
+
+Inspired by Karpathy's LLM-wiki separation of `raw/` (immutable source room) and `wiki/` (LLM-owned knowledge), and by his `hot.md` rolling-buffer pattern for fast warm-start.
+
+### Added — `/listen` nightly ingest pipeline
+- New `commands/listen.md` + `skills/listen/SKILL.md` — unattended (no user gates).
+- Pulls yesterday's calendar (Calendar MCP), inbox metadata (Gmail MCP), Slack mentions + authored messages, Drive activity in watched folders, and transcripts via the configured note-source adapters (Granola / Gemini / Fireflies / Otter / generic-Drive).
+- Writes immutable substrate to `<config-root>/archive/YYYY-MM-DD/` per `references/archive-layout.md`. Each day has `calendar.md`, `inbox.md`, `slack.md`, `drive.md`, `transcripts/<id>-<slug>.md`, and `_index.md` (counts + source health + errors). Privacy-conservative defaults: metadata-only for inbox / Slack; full bodies opt-in.
+- Runs `transcript-reviewer`, `conversation-miner`, `activity-miner` against the archive read-only. Stages all proposals to a single `<config-root>/memory/.commit-drafts/YYYY-MM-DD.md` file. Active memory is never modified.
+- Modes: default (yesterday), `--date YYYY-MM-DD`, `--backfill N`, `--remine YYYY-MM-DD`, `--rewrite YYYY-MM-DD` (rare; force re-pull).
+- Weekly retention tail (Sundays only) compresses archive directories older than 30 days into monthly tarballs. No silent deletion of >180-day tarballs.
+- Recommended cron registration via core-ops `/register-schedules`: `0 23 * * *` (11pm local) or `0 5 * * 1-5` (5am weekdays).
+
+### Added — `/morning` interactive merge + brief handoff
+- New `commands/morning.md` + `skills/morning/SKILL.md` — the JARVIS morning routine.
+- Reads the latest `.commit-drafts/` file. Renders an overnight summary (counts, sources status, proposal totals).
+- Walks proposals interactively: each gets `accept / reject / edit / defer / skip-remaining`. `skim` mode renders one-liners and offers `accept-all-high`, `accept-all`, `select`, `reject-all` shortcuts.
+- v4.4 drift detection runs on every knowledge-entry accept; conflicts prompt supersede / keep-both / skip.
+- Idempotent — re-running on a partially-walked draft picks up where the last session left off. Merged / rejected sections marked `~~struck out~~`.
+- After merge, refreshes `memory/index.md` and `memory/hot.md`, archives the fully-resolved draft to `.commit-drafts/archive/<date>-merged.md`.
+- Optional handoff to `/brief` after merge: "Run /brief to start the day? (y/N)".
+
+### Added — `memory/hot.md` rolling 7-day context cache
+- New `references/hot-cache.md` — formal spec.
+- Sections: what I worked on (last 7 days), active people, active threads, recent commitments (to others / from others), recent reflections, recent decisions. Verbatim citations from existing nodes — no synthesis, no judgment, zero LLM cost.
+- Capped at 3000 words; truncates intelligently when over.
+- Configurable via `<config-root>/plugins/cortex.user-context.md` (`hot_cache.enabled`, `window_days`, `word_cap`, `refresh_on`).
+- **Read first by `/recall` auto-fire** at conversation start — every session opens warm.
+- **Maintained by** `/listen` (nightly), `/morning` (after merge), `/end-day` Step 5.6.
+- Graceful fallback: if `hot.md` is missing or disabled, `/recall` reverts to v4.6 behavior.
+
+### Changed — `/recall` Step 0 + `/end-day` Step 5.6
+- `/recall` auto-fire now loads `memory/hot.md` before `memory/user.md` (when present and enabled). Adds a pending-overnight-draft check that surfaces a one-line "Run /morning" hint if `.commit-drafts/` has unmerged content.
+- `/end-day` quick chain gains Step 5.6 — refresh hot.md after index refresh, before close.
+
+### Why this matters
+- **The system actually learns while the user sleeps.** Wake up to a single 2-minute draft instead of a blank canvas.
+- **Reproducible mining.** If a mining proposal was wrong, re-run `/listen --remine` against the same archive with different settings. The Karpathy immutable-`raw/` pattern.
+- **Warm starts every session.** `/recall` no longer cold-loads context from scratch. The hot cache makes the AI feel like it already knows what's been going on.
+
+### Coordinated with daily-brief v0.3.0+ and `/end-day` v4.6.0
+- `/morning` can chain directly into `/brief` after merge.
+- `/end-day`'s `## Reflection` writes feed `hot.md` via the cache refresh in Step 5.6.
+
 ## [4.6.0] — /end-day cleanup: quick-default + --full opt-in (2026-05-16)
 
 ### Why this exists

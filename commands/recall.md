@@ -31,9 +31,13 @@ This command runs in one of three modes:
 
 ---
 
-## Step 0 — Load User Profile (ALWAYS, before anything else)
+## Step 0 — Load hot cache + User Profile (ALWAYS, before anything else)
 
-Read `~/Documents/Claude/memory/user.md` if it exists.
+**Hot cache (v4.7+):** Read `~/Documents/Claude/memory/hot.md` first if it exists. This is the rolling 7-day buffer of recent substrate — last week's reflections, active people, open threads, recent commitments. Apply immediately and silently for context awareness.
+
+If `hot.md` is missing or `hot_cache.enabled: false` in user-context, skip it gracefully and continue with the User Profile load.
+
+**User Profile:** Read `~/Documents/Claude/memory/user.md` if it exists.
 
 Apply immediately and silently:
 - Communication preferences → adjust your response style
@@ -41,8 +45,11 @@ Apply immediately and silently:
 - Corrections → avoid past mistakes
 - Tool preferences → use their preferred tools/platforms
 - Relationship context → know who's who
+- Recent activity from hot.md → don't ask "what have you been working on" when the cache already says
 
 **Do NOT announce this.** Just be the version of Claude they've trained you to be.
+
+**Pending overnight draft check (v4.7+):** If `~/Documents/Claude/memory/.commit-drafts/` contains a file dated yesterday or today that hasn't been archived to `.commit-drafts/archive/`, a `/listen` run is pending review. At the end of the auto-recall flow (after Step 0 completes silently), surface ONE short line: "Heads up: overnight `/listen` proposals are pending. Run `/morning` when you're ready." Do not enumerate the proposals; just flag.
 
 ---
 

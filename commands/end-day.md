@@ -352,7 +352,19 @@ Invoke the `indexer` skill (see `skills/indexer/SKILL.md` and `commands/reindex.
 
 If `<config-root>/memory/.reindex-queue` exists (from prior `/remember` calls), the indexer notices it and deletes it after running.
 
-No user gate. This step always runs. If the indexer fails, log the error and continue to Step 6 — don't block the close on a maintenance task.
+No user gate. This step always runs. If the indexer fails, log the error and continue to Step 5.6 — don't block the close on a maintenance task.
+
+---
+
+## Step 5.6 — Refresh hot cache (v4.7+)
+
+Regenerate `<config-root>/memory/hot.md` so tomorrow's `/recall` auto-fire opens with a fresh 7-day rolling buffer.
+
+Pure file walk + filter + render per `references/hot-cache.md`. Zero LLM cost.
+
+If `hot_cache.enabled: false` is set in user-context, skip this step.
+
+No user gate. If hot-cache generation fails, log and continue to Step 6.
 
 ---
 
