@@ -206,6 +206,7 @@ When you detect these patterns, run the corresponding command automatically. **C
 | "regenerate the catalog", "refresh the index", "rebuild memory/index" | Run `/reindex` — deterministic memory-index regeneration (v4.5+) |
 | "what's missing", "research gaps in my memory", "what should we learn more about" | Run `/research-gaps` — autonomous gap-finder + web research (v4.5+) |
 | "set up Obsidian", "make this work on mobile", "enable graph view" | Run `/setup-obsidian` — scaffold Obsidian vault config (v4.5+) |
+| "start nucleus", "let's begin", "onboard me", "set me up", "first time setup", "configure everything" | Run `/start-nucleus` — foundational onboarding walker (v4.8+) |
 | "good morning", "start my day", "what happened overnight", "morning routine" | Run `/morning` — walk yesterday's `/listen` proposals (v4.7+) |
 | "ingest yesterday", "mine yesterday's calendar", "process overnight" | Run `/listen` — nightly autonomous ingest (v4.7+) |
 
@@ -229,6 +230,7 @@ If `.claude/commands/` is present, these slash commands are available:
 | `/research-gaps` | Scan memory for thin/stale/contradictory/orphaned/under-cited content; research via web with ≥2 sources; stage findings as a draft (v4.5+) |
 | `/merge-research-draft` | Walk the most recent `.research-drafts/` file finding-by-finding and merge accepted updates into active memory (v4.5+) |
 | `/setup-obsidian` | Scaffold `.obsidian/` vault config + `VAULT.md` so cortex memory becomes graph-viewable in Obsidian (v4.5+) |
+| `/start-nucleus` | Foundational onboarding walker. Chains identity, voice, sources, Obsidian, per-plugin setups, diagnostics, schedules. Idempotent. The "I just installed Nucleus, now what" command (v4.8+) |
 | `/listen` | Nightly autonomous ingest — pulls yesterday's calendar/inbox/slack/transcripts/drive into immutable `<config-root>/archive/YYYY-MM-DD/`, runs mining agents, stages `.commit-drafts/` proposals. Designed for cron (v4.7+) |
 | `/morning` | Walk the latest `/listen` draft proposal-by-proposal (accept/reject/edit/defer), refresh hot.md + memory/index, optionally chain into `/brief` (v4.7+) |
 

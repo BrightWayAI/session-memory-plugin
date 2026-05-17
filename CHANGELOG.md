@@ -6,6 +6,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.8.0] — /start-nucleus onboarding walker + /observe pruned (2026-05-16)
+
+### Added — `/start-nucleus` foundational onboarding walker
+- New `commands/start-nucleus.md` + `skills/start-nucleus/SKILL.md` — the "I just installed Nucleus, now what" command. Chains the essential setups in order:
+  1. `/setup-identity` (if `identity.md` missing)
+  2. `/setup-voice` (skip if user opts out of drafting)
+  3. `/setup-sources` (skip if user has no note adapters)
+  4. `/setup-obsidian` (recommended; user opts in)
+  5. Per-plugin `/setup-*` for each detected installed plugin (daily-brief, lead-engine, weekly-outreach, referral-engine, news-curator, client-status, project-setup, time-tracking, writing-style, core-ops, weekly-alignment, bizdev-outreach)
+  6. `/diagnose` (if core-ops installed)
+  7. `/register-schedules` (optional, if core-ops installed)
+- **Idempotent.** Detects completed setups via marker files; silently skips done steps. Re-running picks up where you left off. `--reset` (with per-file confirmation) walks from scratch.
+- **Every step has a skip.** Nothing is mandatory beyond `/setup-identity` (and even that surfaces a warning rather than failing).
+- **Honors autonomy slider.** `autonomy: /start-nucleus: auto` collapses the menu to "going through all setups now."
+- Logs to `<config-root>/memory/log.md` via the `log-writer` skill at completion.
+- Router (v0.1.4) added intent rows mapping "start nucleus", "let's get started", "set me up", "onboard me", "first time setup", "let's begin", "configure everything" → `/start-nucleus`.
+
+### Removed — `/observe` slash command
+- `commands/observe.md` deleted. The full spec consolidated into `skills/observe/SKILL.md` (which was always the canonical home — the command file's own description said "this is NOT a user-facing command — it is a background behavior").
+- Passive observation continues unchanged via the always-on skill. No functional change.
+- Router intent table updated (v0.1.4) to remove the "/observe" row. Trigger phrases like "passively observe X" / "watch for X" now route to no command — observation is always on, no command needed.
+- Migration: if you typed `/observe` in a memory entry or script, it will no longer resolve. The behavior it described is still active; just no slash-command surface.
+
+### Why this matters
+- **/start-nucleus is the productization unblock.** Before this, a new user had to know about and run 5-9 setup commands in the right order. After this, they say "start nucleus" and the AI walks them. Critical for sharing Nucleus with operators who aren't power users.
+- **Pruning /observe** removes a phantom command. The doc said it wasn't user-facing; now the catalog matches the doc.
+
 ## [4.7.2] — Wiring + privacy: autonomy gates, log centralization, gitignore defaults (2026-05-16)
 
 ### Added — `.gitignore` privacy defaults
