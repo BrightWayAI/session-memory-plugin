@@ -6,6 +6,45 @@ Format follows [Keep a Changelog](https://keepachangelog.com/). Versions match `
 
 ## [Unreleased]
 
+## [4.5.0] — Legibility upgrade: memory index + research-gaps + Obsidian (2026-05-16)
+
+### Why this exists
+v4.3 (mining) made memory grow with the user. v4.4 (decay) made it forget gracefully. v4.5 makes memory **legible** and **self-improving**: a single auto-maintained catalog file gives a one-glance overview of the whole second brain, a new `/research-gaps` command actively finds and fills weak spots with web-sourced research (user-gated), and a new `/setup-obsidian` command makes `<config-root>/` a graph-viewable, mobile-readable Obsidian vault.
+
+Part of the "Nucleus as JARVIS" initiative (Phase 1 finish + Phase 2 human UI). See nucleus repo `docs/proposals/cortex-v4.5-legibility.md` and `docs/proposals/obsidian-as-ui.md` for the design rationale.
+
+### Added — `memory/index.md` (auto-maintained catalog)
+- New `skills/indexer/SKILL.md` — deterministic, zero-LLM file walker. Reads every memory node, extracts descriptor + latest `[confirmed:...]` date, classifies decay state, renders a grouped catalog (user / clients / people / companies / topics / domain / bizdev / system). Writes `<config-root>/memory/index.md` wholesale.
+- New `commands/reindex.md` — explicit invocation. Runs in seconds, no model calls, no node writes.
+- New `references/memory-index.md` — formal spec covering walk rules, classification formula, output template, and refresh triggers.
+- **`/end-day` Step 5.5** — auto-runs the indexer after Step 5 brief pre-stage; clears `.reindex-queue` marker.
+- **`/cleanup` Step 4.5** — auto-runs the indexer if any Step 4 action touched memory.
+- **`/remember` Step 3.5** — appends to `<config-root>/memory/.reindex-queue` after writes (does NOT run indexer synchronously; defers to the next `/end-day`).
+- Storage-layout update in CLAUDE.md to include `index.md`, `.reindex-queue`, and `.research-drafts/`.
+
+### Added — `/research-gaps` autonomous gap-fill
+- New `commands/research-gaps.md` + `skills/research-gaps/SKILL.md` — active-maintenance loop complementing the v4.4 decay model. Scans `<config-root>/memory/` for seven gap types (thin entity, stale fact in active rotation, contradiction within a node, orphan, under-cited high-confidence claim, decision gap, sparse domain) per `references/gap-detection-rules.md`. Renders ranked gap list; user picks per-gap actions (research-now / skip / mark-ok / archive-node / ask-me).
+- New `agents/gap-researcher.md` — subagent with `WebSearch`, `WebFetch`, file I/O scoped to `<config-root>/memory/.research-drafts/` only. Enforces ≥2-independent-sources rule per claim. Enforces private-individual privacy rule (verifiable professional facts only — no home location, family details, real-estate, social media beyond official professional profiles, speculation). Returns confidence-aware findings (high / medium / low). Cap of 25K WebFetch tokens per run; default 5-gap cap.
+- New `commands/merge-research-draft.md` — interactive walk-through of the most recent `.research-drafts/` file. Each finding: accept / reject / edit / defer / skip-remaining. Accepts apply REPLACE / MERGE / ADD / ARCHIVE per the proposed action and stamp `[confirmed:today]`. Rejects log to `.research-skip-log.md` for 90-day suppression. Drafts archive to `.research-drafts/archive/` once fully resolved.
+- New `references/gap-detection-rules.md` — formal scanner rules with priority, scan procedure, and false-positive caveats.
+- **`/end-week` Step 5.5** — optional invocation of `/research-gaps` in chained mode (top-5 by priority, no per-gap prompts unless user chooses "select").
+
+### Added — `/setup-obsidian` (config-only Obsidian vault scaffolding)
+- New `commands/setup-obsidian.md` + `skills/setup-obsidian/SKILL.md` — writes `<config-root>/.obsidian/` workspace config (`app.json`, `core-plugins.json`, `daily-notes.json`) and a `VAULT.md` home page with Dataview-powered active-entity tables.
+- New `references/obsidian-config-templates/` — bundled defaults for the four files written above.
+- **Idempotent and non-destructive** — existing `.obsidian/` files and existing `VAULT.md` are preserved on re-run. Force-reset available via `/setup-obsidian --reset` with per-file confirmation.
+- **Daily-brief integration is config-only.** `daily-notes.json` points the daily-notes folder at `<config-root>/briefs/` — daily-brief's existing markdown snapshots become Obsidian daily notes with zero plugin code change.
+- **No external installs.** The command does not install Obsidian or community plugins. It lists recommended community plugins (Dataview, Tasks, Calendar, Periodic Notes) for the user to install through Obsidian's UI.
+
+### Added — schema and trigger updates
+- CLAUDE.md storage-layout, auto-fire triggers, and slash-command tables updated for `/reindex`, `/research-gaps`, `/merge-research-draft`, `/setup-obsidian`.
+
+### Why this matters
+- **Obsidian becomes a first-class human UI immediately.** `index.md` + `VAULT.md` + the existing wikilink convention give graph view, mobile access, and daily-note integration with zero plugin code.
+- **Non-cortex agents can read memory cold via `index.md`** without loading `memory-librarian` — a one-file entry point for any future Nucleus plugin or one-off agent.
+- **Active gap-filling complements passive decay.** v4.4 forgets; v4.5 asks "what's missing?" and proposes user-gated answers.
+- **Productization-ready.** A new user can run `/setup-identity` → `/setup-voice` → `/setup-obsidian` and end up with a graph view of their own second brain in under five minutes.
+
 ## [4.4.0] — Forgetting / decay layer (2026-05-12)
 
 ### Why this exists

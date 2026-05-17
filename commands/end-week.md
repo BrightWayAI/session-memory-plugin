@@ -90,6 +90,19 @@ If no → skip; user can run Monday morning.
 
 ---
 
+## Step 5.5 — Research gaps (optional, v4.5+)
+
+Offer:
+
+> "Run `/research-gaps` now to find and fill weak spots in memory (thin entities, stale facts, contradictions, orphans, under-cited claims)? Findings stage to a draft for review — nothing auto-merges. Default scope: full memory."
+
+If yes → invoke `/research-gaps` in chained mode (skips the user prompt at Step 2 of that command; renders the gap list inline and asks "Research the top 5?").
+If no → skip; user can run any time with `/research-gaps`.
+
+Skip this step silently if cortex is below v4.5 (no `/research-gaps` available).
+
+---
+
 ## Step 6 — Close
 
 Confirm completion:

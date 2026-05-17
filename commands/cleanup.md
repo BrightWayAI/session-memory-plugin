@@ -209,6 +209,16 @@ Report what was done after each action.
 
 ---
 
+## Step 4.5 — Refresh memory index (v4.5+)
+
+If any approved actions in Step 4 changed memory (demotions, archives, consolidations, edits), invoke the `indexer` skill to regenerate `<config-root>/memory/index.md`.
+
+Deterministic and zero-LLM — runs in seconds. See `skills/indexer/SKILL.md` and `commands/reindex.md`.
+
+If no actions touched memory in Step 4, skip this step.
+
+---
+
 ## Step 5 — Post-cleanup summary
 
 ```

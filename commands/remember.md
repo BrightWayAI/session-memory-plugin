@@ -582,6 +582,24 @@ Casual mentions (a name appearing in conversation without any of the graduation 
 
 ---
 
+## Step 3.5 — Queue an index refresh (v4.5+)
+
+After all writes succeed, append a line to `<config-root>/memory/.reindex-queue`:
+
+```
+<today YYYY-MM-DD HH:MM> touched: <node-id>[, <node-id>, ...]
+```
+
+Create the file if it doesn't exist. Idempotent — multiple `/remember` calls just append more lines.
+
+This step does NOT regenerate `<config-root>/memory/index.md`. That happens at the next `/end-day` Step 5.5, the next `/cleanup` Step 4.5, or an explicit `/reindex`. Synchronously regenerating on every `/remember` would chunk fast capture sessions.
+
+If the reindex-queue file ever exceeds 200 lines, the next consumer of it (indexer) ignores the contents and just runs a full regeneration — the queue is a *hint*, not a critical record.
+
+Silent mode (auto-commit) writes the queue line too. The next session's `/recall` auto-fire will trigger the next index refresh chain.
+
+---
+
 ## Step 4 — Continuity check
 
 Scan for:

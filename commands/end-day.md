@@ -308,6 +308,18 @@ If `daily-brief` is NOT installed, skip Step 5 entirely. The chain still produce
 
 ---
 
+## Step 5.5 — Refresh memory index (v4.5+)
+
+Regenerate `<config-root>/memory/index.md` so the next day's `/recall`, non-cortex agents, and Obsidian users see an up-to-date catalog.
+
+Invoke the `indexer` skill (see `skills/indexer/SKILL.md` and `commands/reindex.md`). Deterministic and zero-LLM — runs in seconds, no user input required.
+
+If `<config-root>/memory/.reindex-queue` exists (from prior `/remember` calls), the indexer notices it and deletes it after running.
+
+No user gate. This step always runs. If the indexer fails, log the error and continue to Step 6 — don't block the close on a maintenance task.
+
+---
+
 ## Step 6 — Close
 
 Confirm completion briefly:
